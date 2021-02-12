@@ -1,64 +1,9 @@
 {
-  "name": "first-network",
-  "version": "1.0.0",
-  "license": "Apache-2.0",
-  "client": {
-    "tlsEnable": true,
-    "adminUser": "{{ hl_explorer_username }}",
-    "adminPassword": "{{ hl_explorer_password }}",
-    "enableAuthentication": false,
-    "organization": "{{ org }}",
-    "connection": {
-      "timeout": {
-        "peer": {
-          "endorser": "300"
-        },
-        "orderer": "300"
-      }
-    }
-  },
-  "channels": {
-{% if global_channels is defined %}{% for channel in global_channels %}{% if org in channel.particapants %}
-  "{{ channel.name }}": {
-          "peers": {
-          {% for particapant in channel.particapants %}"peer0.{{ particapant }}.{{ global_domain }}":  {}{% if not loop.last %},{% endif %}{% endfor %}
-          },
-          "connection": {
-            "timeout": {
-              "peer": {
-                "endorser": "6000",
-                "eventHub": "6000",
-                "eventReg": "6000"
-              }
-            }
-          }
-  }{% if not loop.last %},{% endif %}
-{% endif %}
-{% endfor %}
-{% endif %}
-  },
-  "organizations": {
-    "{{ org }}MSP": {
-      "mspid": "{{ org }}MSP",
-      "fullpath": true,
-      "adminPrivateKey": {
-        "path": "/fabric/crypto-config/peerOrganizations/{{ org }}.{{ global_domain }}/users/Admin@{{ org }}.{{ global_domain }}/msp/keystore/server.key"
-      },
-      "signedCert": {
-        "path": "/fabric/crypto-config/peerOrganizations/{{ org }}.{{ global_domain }}/users/Admin@{{ org }}.{{ global_domain }}/msp/signcerts/Admin@{{ org }}.{{ global_domain }}-cert.pem"
-      }
-    }
-  },
-  "peers": {
-    "peer0.{{ org }}.{{ global_domain }}": {
-      "tlsCACerts": {
-        "path": "/fabric/crypto-config/peerOrganizations/{{ org }}.{{ global_domain }}/peers/peer0.{{ org }}.{{ global_domain }}/tls/ca.crt"
-      },
-      "url": "grpcs://peer0.{{ org }}.{{ global_domain }}:7051",
-      "eventUrl": "grpcs://peer0.{{ org }}.{{ global_domain }}:7053",
-      "grpcOptions": {
-        "ssl-target-name-override": "peer0.{{ org }}.{{ global_domain }}"
-      }
-    }
-  }
+	"network-configs": {
+		"test-network": {
+			"name": "Test Network",
+			"profile": "./connection-profile/test-network.json"
+		}
+	},
+	"license": "Apache-2.0"
 }

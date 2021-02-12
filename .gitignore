@@ -89,3 +89,4 @@ swarm/nexus/data
 artifacts
 dockercompose
 dev
+.history

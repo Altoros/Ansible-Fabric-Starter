@@ -1,49 +1,48 @@
-version: '2'
+# SPDX-License-Identifier: Apache-2.0
+version: '2.0'
+
 volumes:
-  explorer-db.{{ org }}.{{ global_domain }}:
-  explorer.{{ org }}.{{ global_domain }}:
+  pgdata:
+  walletstore:
 services:
-  explorer-db.{{ org }}.{{ global_domain }}:
+  explorerdb.{{ org }}.{{ global_domain }}:
     image: hyperledger/explorer-db:{{ hl_explorer_version }}
-    container_name: explorer-db.{{ org }}.{{ global_domain }}
+    container_name: explorerdb.{{ org }}.{{ global_domain }}
     restart: {{ docker_restart_policy }}
+    hostname: explorerdb.{{ org }}.{{ global_domain }}
     environment:
-    # hyperledger explorer configs (used in migration scripts)
-    - DATABASE_DATABASE=fabricexplorer
-    - DATABASE_USERNAME=hppoc
-    - DATABASE_PASSWORD=password032
-    # postgresql configs:
-    - POSTGRES_USER=root
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWORD=password
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -q -U postgres"
+      interval: 30s
+      timeout: 10s
+      retries: 5
     volumes:
-      - explorer-db.{{ org }}.{{ global_domain }}:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
 
   explorer.{{ org }}.{{ global_domain }}:
-    image: hyperledger/explorer:{{ hl_explorer_version }}
+    image: hyperledger/explorer:latest
     container_name: explorer.{{ org }}.{{ global_domain }}
-    restart: {{ docker_restart_policy }}
+    hostname: explorer.{{ org }}.{{ global_domain }}
     environment:
-    - DATABASE_HOST=db
-    - DATABASE_USERNAME=hppoc
-    - DATABASE_PASSWD=password032
-    - DISCOVERY_AS_LOCALHOST=false
+      - DATABASE_HOST=explorerdb.{{ org }}.{{ global_domain }}
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWD=password
+      - LOG_LEVEL_APP=debug
+      - LOG_LEVEL_DB=debug
+      - LOG_LEVEL_CONSOLE=info
+      - LOG_CONSOLE_STDOUT=true
+      - DISCOVERY_AS_LOCALHOST=false
     volumes:
-      - {{ fabric_starter_workdir }}/artifacts/crypto-config:/fabric/crypto-config:ro
-      - explorer.{{ org }}.{{ global_domain }}:/tmp/crypto
-      - {{ fabric_starter_workdir }}/artifacts/explorer-config.json:/opt/explorer/app/platform/fabric/connection-profile/first-network.json:ro
+      - {{ fabric_artifacts }}/crypto-config:/opt/explorer/crypto-config
+      - {{ fabric_artifacts }}/explorer-config.json:/opt/explorer/app/platform/fabric/config.json
+      - {{ fabric_artifacts }}/connection-profile:/opt/explorer/app/platform/fabric/connection-profile
+      - walletstore:/opt/explorer/wallet
     ports:
-      - {{ hl_explorer_port }}:8080
-    links:
-      - explorer-db.{{ org }}.{{ global_domain }}:db
+      - 8080:8080
     depends_on:
-      - explorer-db.{{ org }}.{{ global_domain }}
-    extra_hosts:
-{% for fabric_host in groups['nodes'] %}
-{% if hostvars[fabric_host].inventory_hostname|string() != inventory_hostname|string() %}
-{% if 'orderer' in hostvars[fabric_host].node_roles %}
-      -  orderer{{ hostvars[fabric_host].orderer_id | default() }}.{{ global_domain }}:{{ hostvars[fabric_host].ansible_host }}
-{% endif %}
-{% if 'peer' in hostvars[fabric_host].node_roles %}
-      -  peer0.{{ hostvars[fabric_host].org }}.{{ global_domain }}:{{ hostvars[fabric_host].ansible_host }}
-{% endif %}
-{% endif %}
-{% endfor %}
+      explorerdb.{{ org }}.{{ global_domain }}:
+        condition: service_healthy

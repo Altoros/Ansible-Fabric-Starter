@@ -26,7 +26,7 @@ fabric_rest_version: "latest"
 node_version: "8-alpine"
 
 # Hyperledger explorer configs
-hl_explorer_version: 0.3.9.4
+hl_explorer_version: 1.1.4
 hl_explorer_port: 8080
 hl_explorer_username: "admin"
 hl_explorer_password: "adminpw"
@@ -55,6 +55,7 @@ fabric_artifacts_folders:
   - "{{ docker_artifacts }}"
   - "{{ fabric_artifacts }}"
   - "{{ fabric_artifacts }}/channel"
+  - "{{ fabric_artifacts }}/connection-profile"
   - "{{ chaincode }}"
   - "{{ fabric_starter_workdir }}/www-client"
 
@@ -110,5 +111,7 @@ files_to_rsync_nodes_phase2:
 files_hl_explorer:
   - from: "artifact-templates/explorer-config.json"
     to: "{{ fabric_artifacts }}/explorer-config.json"
+  - from: "artifact-templates/connection-profile/test-network.json"
+    to: "{{ fabric_artifacts }}/connection-profile/test-network.json"
   - from: "docker-compose-templates/docker-composetemplate-explorer.yaml"
     to: "{{ docker_artifacts }}/docker-compose-explorer.yaml"

@@ -14,14 +14,14 @@
           raw: 'docker-compose --file {{ docker_artifacts }}/docker-compose-explorer.yaml up -d 2>&1'
 
         - name: Let PostgreSQL start
-          raw: "docker logs $(docker ps | grep explorer-db.{{ org }}.{{ global_domain }} | awk '{ print $1 }')"
+          raw: "docker logs $(docker ps | grep explorerdb.{{ org }}.{{ global_domain }} | awk '{ print $1 }')"
           register: docker_logs_output
           until: '"ready" in docker_logs_output.stdout'
           retries: 30
           delay: 1
 
-        - name: Migrate Explorer Database
-          raw: 'docker exec explorer-db.{{ org }}.{{ global_domain }} /bin/bash /opt/createdb.sh'
+        # - name: Migrate Explorer Database
+        #   raw: 'docker exec explorerdb.{{ org }}.{{ global_domain }} /bin/bash /opt/createdb.sh'
 
         - name: Restart Blockchain Explorer to obtain all changes..
           raw: "docker restart explorer.{{ org }}.{{ global_domain }}"

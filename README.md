@@ -16,8 +16,8 @@ Assumed that 1 physical (or virtual) host will serve one organisation, so **only
 
 ## Changelog:
 
+* Hyperledger explorer updated to 1.1.4
 From previous version, based on the use on Hyperledger Fabric v1.4.2:
-
 * Hyperledger Fabric updated to version 1.4.4, and fabric-tools updated to 0.4.15;
 * Dropped support of solo and kafka ordering services;
 * Changed the way of configuring channels and installing chaincode (now, there are no pre-configured common channel, please see inventory file updates).
@@ -32,8 +32,8 @@ Your machine should have:
 You can find installation instructions on [ansible website](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 
 Provisioned nodes by ansible should have:
-* Ubuntu 16.04, Debian 9+ or CentOS 7
-* python
+* Ubuntu 20.04, Debian 9+ or CentOS 7
+* python3
 * sudo access
 
 ## Ports, used by default, you probably want to whitelist them in your firewall.
@@ -361,6 +361,10 @@ Playbook, to perform chaincode upgrade on previously launched network via Ansibl
 3. Checks, if new chaincode version != old chaincode version;
 4. Performs chaincode upgrade.
 
+#### **clean-network.yml** 
+
+This playbook will execute docker-compose down on all hosts, removing all docker container and orphans
+
 ### *node_roles* hostvar description
 
 `node_roles` is special configuration variable of array type to simplify understanding of what type of containers each host will serve.
@@ -372,6 +376,10 @@ All possible node roles:
 * **root_peer** - node will be used to create all channels and instantiate chaincode for the whole network (one role per network)
 * **peer** - node will peer and api container for specified organization.
 * **explorer** - node will serve Hyperledger Blockchain explorer, served port and explorer version configurable in 'group_vars/all.yml'.
+
+# Local development
+
+A vagrantfile has been created with 2 Ubuntu VM. Please refer to [vagrant documentation](https://www.vagrantup.com/docs) to created them. A hosts_raft_dev.yml has also been created to work with those 2 local VM
 
 #### Known issues
 

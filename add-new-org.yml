@@ -72,7 +72,7 @@
   - name: Configure new org
     block:
 
-    - name: Trnasfer chaincode
+    - name: Transfer chaincode
       synchronize:
         src: "templates/chaincode"
         dest: "{{ fabric_starter_workdir }}"

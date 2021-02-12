@@ -1,0 +1,11 @@
+---
+- hosts: nodes
+  tasks:
+    - name: Clean, Hyperledger Fabric network
+      block:
+        - name: Remove Hyperledger explorer
+          raw: 'docker-compose --file {{ docker_artifacts }}/docker-compose-explorer.yaml down --remove-orphans 2>&1'
+        - name: Remove CA, Cli, peer, API 
+          raw: 'docker-compose --file {{ docker_artifacts }}/docker-compose-{{ org }}.yaml down --remove-orphans 2>&1'
+        - name: Remove Orderer and Cli
+          raw: 'docker-compose --file {{ docker_artifacts }}/docker-compose-{{ global_domain }}.yaml down --remove-orphans 2>&1'

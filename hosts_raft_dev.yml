@@ -1,0 +1,49 @@
+---
+all:
+  hosts:
+    localhost: # localhost connection parameters, used for storing configuration while transferring it between nodes
+      ansible_connection: local
+  vars:
+    global_domain: example.com
+    global_chaincode_lang: golang # Programming language of chaincode
+    global_chaincode_version: 1.0 # Your chaincode version
+    global_channels:
+      - name: common # Channel name
+        particapants: # Organizations, should be included in channel
+          - org0
+          - org1
+        chaincode: # Chaincode params
+          name: reference
+          version: "{{ global_chaincode_version }}"
+          policy: ""
+          init: '{"Args":["init","a","100","b","100"]}'
+    orderer_count: 2 # Amount of orderers in network
+  children:
+    nodes:
+      hosts:
+        org0.example.com: # Describes which containers will run on this node
+          node_roles:
+            - root_orderer # This node will be used to generate crypto-config for other orderers
+            - orderer # This node will host an orderer-service
+            - peer # This node will host peers and api containers for organization
+            - root_peer # This node will be used to create channels and instantiate chaincode
+            - explorer # This node will serve hyperledger fabric explorer
+          org: org0 # Organization name
+          orderer_id: 0
+          ansible_host: 192.168.0.200 # Real ip address or domain name of the machine
+          ansible_user: vagrant  # User with sudo access
+          ansible_private_key_file: ~/.vagrant.d/insecure_private_key # Private key to identify ourselves
+          ansible_ssh_port: 22 # Specify ssh-port here, if case of it's not defaulted.
+        # Same structure for any other nodes
+        org1.example.com:
+          node_roles:
+            - orderer # This node will host an orderer-service
+            - peer # This node will host peers and api containers for organization
+            - explorer
+          org: org1
+          orderer_id: 1 # ID of orderer-service which is running on this host
+          ansible_host: 192.168.0.201
+          ansible_user: vagrant
+          ansible_private_key_file: ~/.vagrant.d/insecure_private_key
+          ansible_ssh_port: 22
+
