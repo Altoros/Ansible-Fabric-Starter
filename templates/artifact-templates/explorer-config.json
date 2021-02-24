@@ -32,7 +32,7 @@
               }
             }
           }
-  }{% if not loop.last %},{% endif %}
+      }{% if (not loop.last) and (channel.particapants|length > 1) %},{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
