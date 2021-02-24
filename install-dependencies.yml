@@ -6,3 +6,22 @@
   roles:
     - common-packages
     - docker
+# Fix #17 hyperledger/fabric-ccenv:latest doesn't exist anymore
+- name: Pull an image
+  hosts: nodes
+  become: true
+  tasks:
+  - community.general.docker_image:
+      name: hyperledger/fabric-ccenv:amd64-{{ fabric_pack }}
+      source: pull
+
+- name: Add tag latest to image
+  hosts: nodes
+  become: true
+  tasks:
+  - community.general.docker_image:
+      name: hyperledger/fabric-ccenv:amd64-{{ fabric_pack }}
+      repository: hyperledger/fabric-ccenv:latest
+      # As 'latest' usually already is present, we need to enable overwriting of existing tags:
+      force_tag: yes
+      source: local
